@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信用卡风险评估问卷</title>
+    <style>
+        :root {
+            --primary-color: #1a4b8c;
+            --secondary-color: #f0f5ff;
+            --accent-color: #ff6b35;
+            --text-color: #333;
+            --light-text: #666;
+            --border-color: #ddd;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color), #2c6cb0);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+        
+        .card.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .question-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .option.selected {
+            background-color: var(--secondary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 75, 140, 0.2);
+        }
+        
+        .option input {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+        
+        .option label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        
+        .stars {
+            display: flex;
+            gap: 4px;
+            margin-left: 8px;
+        }
+        
+        .star {
+            color: #ffc107;
+            font-size: 16px;
+        }
+        
+        .bank-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        
+        .bank-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .bank-option:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .bank-option.selected {
+            background-color: var(--secondary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 75, 140, 0.2);
+        }
+        
+        .bank-logo {
+            width: 36px;
+            height: 36px;
+            background-color: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-prev {
+            background-color: #f8f9fa;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-next, .btn-submit, .btn-limit-plan {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-container {
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--light-text);
+            margin-top: 5px;
+        }
+        
+        .report-container {
+            text-align: center;
+        }
+        
+        .score-display {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 15px 0;
+        }
+        
+        .rating-text {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .details {
+            text-align: left;
+            margin-top: 20px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        
+        .recommendations {
+            background-color: var(--secondary-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .recommendations h3 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+        
+        .recommendations ul {
+            padding-left: 18px;
+        }
+        
+        .recommendations li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        .dimension-advice {
+            margin-top: 15px;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 12px;
+        }
+        
+        .dimension-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        
+        .advice-content {
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .good-advice {
+            color: var(--success-color);
+        }
+        
+        .improve-advice {
+            color: var(--warning-color);
+        }
+        
+        .critical-advice {
+            color: var(--danger-color);
+        }
+        
+        .limit-plan-container {
+            text-align: left;
+        }
+        
+        .limit-plan-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .limit-plan-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 6px;
+            font-size: 17px;
+        }
+        
+        .merchant-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+        
+        .merchant-table th, .merchant-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .merchant-table th {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 25px;
+            margin: 15px 0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+        }
+        
+        .timeline-item:after {
+            content: '';
+            position: absolute;
+            left: -14px;
+            top: 10px;
+            width: 2px;
+            height: calc(100% + 10px);
+            background-color: var(--primary-color);
+        }
+        
+        .timeline-item:last-child:after {
+            display: none;
+        }
+        
+        .timeline-item h4 {
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        
+        .timeline-item p {
+            font-size: 14px;
+        }
+        
+        .bank-specific {
+            background-color: #fff9e6;
+            border-left: 4px solid #ffc107;
+        }
+        
+        @media (max-width: 480px) {
+            .bank-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .score-display {
+                font-size: 32px;
+            }
+            
+            .merchant-table {
+                font-size: 12px;
+            }
+            
+            .option label {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>信用卡风险评估表</h1>
+            <p>请根据您的实际情况填写以下问卷，我们将为您生成专业的信用卡风险评估报告</p>
+        </header>
+        
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress-bar"></div>
+            </div>
+            <div class="progress-text" id="progress-text">第1页/共10页</div>
+        </div>
+        
+        <!-- 银行选择页面 -->
+        <div class="card active" id="page-1">
+            <h2 class="question-title">请选择您的发卡银行</h2>
+            <div class="bank-grid" id="bank-options">
+                <!-- 银行选项将通过JavaScript动态生成 -->
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" disabled>上一页</button>
+                <button class="btn-next" id="next-1" disabled>下一页</button>
+            </div>
+        </div>
+        
+        <!-- 信用卡使用时间页面 -->
+        <div class="card" id="page-2">
+            <h2 class="question-title">您的信用卡使用时间</h2>
+            <div class="options-container">
+                <div class="option" data-value="1">
+                    <input type="radio" id="time-1" name="usage-time" value="1">
+                    <label for="time-1">0-3个月</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="3">
+                    <input type="radio" id="time-2" name="usage-time" value="3">
+                    <label for="time-2">3-6个月</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="5">
+                    <input type="radio" id="time-3" name="usage-time" value="5">
+                    <label for="time-3">6个月-1年</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="5">
+                    <input type="radio" id="time-4" name="usage-time" value="5">
+                    <label for="time-4">1年-3年</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="5">
+                    <input type="radio" id="time-5" name="usage-time" value="5">
+                    <label for="time-5">3年以上</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" id="prev-2">上一页</button>
+                <button class="btn-next" id="next-2" disabled>下一页</button>
+            </div>
+        </div>
+        
+        <!-- 还款情况页面 -->
+        <div class="card" id="page-3">
+            <h2 class="question-title">您的还款情况</h2>
+            <div class="options-container">
+                <div class="option" data-value="5">
+                    <input type="radio" id="repayment-1" name="repayment" value="5">
+                    <label for="repayment-1">账单日前还款</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="4">
+                    <input type="radio" id="repayment-2" name="repayment" value="4">
+                    <label for="repayment-2">出账后一周还款</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="3">
+                    <input type="radio" id="repayment-3" name="repayment" value="3">
+                    <label for="repayment-3">还款日前一周还款</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="2">
+                    <input type="radio" id="repayment-4" name="repayment" value="2">
+                    <label for="repayment-4">超出还款日三天内</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="1">
+                    <input type="radio" id="repayment-5" name="repayment" value="1">
+                    <label for="repayment-5">超出还款日三天以上</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" id="prev-3">上一页</button>
+                <button class="btn-next" id="next-3" disabled>下一页</button>
+            </div>
+        </div>
+        
+        <!-- 持续用卡情况页面 -->
+        <div class="card" id="page-4">
+            <h2 class="question-title">您的持续用卡情况</h2>
+            <div class="options-container">
+                <div class="option" data-value="1">
+                    <input type="radio" id="continuous-1" name="continuous" value="1">
+                    <label for="continuous-1">三个月内</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="2">
+                    <input type="radio" id="continuous-2" name="continuous" value="2">
+                    <label for="continuous-2">3-6个月</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="3">
+                    <input type="radio" id="continuous-3" name="continuous" value="3">
+                    <label for="continuous-3">6-12个月</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="5">
+                    <input type="radio" id="continuous-4" name="continuous" value="5">
+                    <label for="continuous-4">1年以上</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" id="prev-4">上一页</button>
+                <button class="btn-next" id="next-4" disabled>下一页</button>
+            </div>
+        </div>
+        
+        <!-- 额度使用情况页面 -->
+        <div class="card" id="page-5">
+            <h2 class="question-title">您的额度使用情况</h2>
+            <div class="options-container">
+                <div class="option" data-value="1">
+                    <input type="radio" id="limit-1" name="limit" value="1">
+                    <label for="limit-1">100%</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="2">
+                    <input type="radio" id="limit-2" name="limit" value="2">
+                    <label for="limit-2">70%~90%</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="4">
+                    <input type="radio" id="limit-3" name="limit" value="4">
+                    <label for="limit-3">50%~70%</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="5">
+                    <input type="radio" id="limit-4" name="limit" value="5">
+                    <label for="limit-4">30%~50%</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="3">
+                    <input type="radio" id="limit-5" name="limit" value="3">
+                    <label for="limit-5">10%~30%</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" id="prev-5">上一页</button>
+                <button class="btn-next" id="next-5" disabled>下一页</button>
+            </div>
+        </div>
+        
+        <!-- 消费频率页面 -->
+        <div class="card" id="page-6">
+            <h2 class="question-title">您的月消费频率</h2>
+            <div class="options-container">
+                <div class="option" data-value="1">
+                    <input type="radio" id="frequency-1" name="frequency" value="1">
+                    <label for="frequency-1">小于3笔</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="2">
+                    <input type="radio" id="frequency-2" name="frequency" value="2">
+                    <label for="frequency-2">3~7笔</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="3">
+                    <input type="radio" id="frequency-3" name="frequency" value="3">
+                    <label for="frequency-3">8~15笔</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="4">
+                    <input type="radio" id="frequency-4" name="frequency" value="4">
+                    <label for="frequency-4">16~25笔</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="5">
+                    <input type="radio" id="frequency-5" name="frequency" value="5">
+                    <label for="frequency-5">25笔以上</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" id="prev-6">上一页</button>
+                <button class="btn-next" id="next-6" disabled>下一页</button>
+            </div>
+        </div>
+        
+        <!-- 多元化消费页面 -->
+        <div class="card" id="page-7">
+            <h2 class="question-title">您的多元化消费情况</h2>
+            <div class="options-container">
+                <div class="option" data-value="1">
+                    <input type="radio" id="diversity-1" name="diversity" value="1">
+                    <label for="diversity-1">1个商户</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="2">
+                    <input type="radio" id="diversity-2" name="diversity" value="2">
+                    <label for="diversity-2">2~3个商户</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="3">
+                    <input type="radio" id="diversity-3" name="diversity" value="3">
+                    <label for="diversity-3">4~5个商户</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="4">
+                    <input type="radio" id="diversity-4" name="diversity" value="4">
+                    <label for="diversity-4">6~7个商户</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="5">
+                    <input type="radio" id="diversity-5" name="diversity" value="5">
+                    <label for="diversity-5">7个商户以上</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" id="prev-7">上一页</button>
+                <button class="btn-next" id="next-7" disabled>下一页</button>
+            </div>
+        </div>
+        
+        <!-- 是否虚假商户页面 -->
+        <div class="card" id="page-8">
+            <h2 class="question-title">是否存在虚假商户交易</h2>
+            <div class="options-container">
+                <div class="option" data-value="5">
+                    <input type="radio" id="fake-1" name="fake" value="5">
+                    <label for="fake-1">全部真实商户</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="3">
+                    <input type="radio" id="fake-2" name="fake" value="3">
+                    <label for="fake-2">一个虚假商家</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="1">
+                    <input type="radio" id="fake-3" name="fake" value="1">
+                    <label for="fake-3">一个以上虚假商家</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" id="prev-8">上一页</button>
+                <button class="btn-next" id="next-8" disabled>下一页</button>
+            </div>
+        </div>
+        
+        <!-- 境外消费页面 -->
+        <div class="card" id="page-9">
+            <h2 class="question-title">是否有境外消费</h2>
+            <div class="options-container">
+                <div class="option" data-value="5">
+                    <input type="radio" id="overseas-1" name="overseas" value="5">
+                    <label for="overseas-1">有</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="option" data-value="1">
+                    <input type="radio" id="overseas-2" name="overseas" value="1">
+                    <label for="overseas-2">无</label>
+                    <div class="stars">
+                        <span class="star">★</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" id="prev-9">上一页</button>
+                <button class="btn-submit" id="submit-btn">生成报告</button>
+            </div>
+        </div>
+        
+        <!-- 报告页面 -->
+        <div class="card" id="report-page">
+            <div class="report-container">
+                <h2>信用卡风险评估报告</h2>
+                <div class="score-display" id="final-score">0</div>
+                <div class="rating-text" id="rating-text">评估中...</div>
+                
+                <div class="details">
+                    <h3>详细评分</h3>
+                    <div id="score-details">
+                        <!-- 评分详情将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="recommendations">
+                    <h3>优化建议</h3>
+                    <div id="dimension-advice">
+                        <!-- 分维度建议将通过JavaScript动态生成 -->
+                    </div>
+                    <h3 style="margin-top: 20px;">总体建议</h3>
+                    <ul id="recommendations-list">
+                        <!-- 总体建议将通过JavaScript动态生成 -->
+                    </ul>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" id="prev-report">重新评估</button>
+                <button class="btn-limit-plan" id="limit-plan-btn">查看提额方案</button>
+            </div>
+        </div>
+        
+        <!-- 提额方案页面 -->
+        <div class="card" id="limit-plan-page">
+            <div class="limit-plan-container">
+                <h2>个性化信用卡提额方案</h2>
+                <div id="bank-specific-info" class="limit-plan-section bank-specific">
+                    <!-- 银行特定信息将通过JavaScript动态生成 -->
+                </div>
+                
+                <div class="limit-plan-section">
+                    <h3>日常刷卡策略</h3>
+                    <div id="daily-strategy">
+                        <!-- 日常策略将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="limit-plan-section">
+                    <h3>节假日刷卡策略</h3>
+                    <div id="holiday-strategy">
+                        <!-- 节假日策略将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="limit-plan-section">
+                    <h3>商户类型与额度分配</h3>
+                    <table class="merchant-table" id="merchant-table">
+                        <!-- 商户表格将通过JavaScript动态生成 -->
+                    </table>
+                </div>
+                
+                <div class="limit-plan-section">
+                    <h3>提额时间规划</h3>
+                    <div class="timeline" id="timeline-plan">
+                        <!-- 时间线将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="btn-prev" id="prev-limit-plan">返回报告</button>
+                <button class="btn-submit" id="restart-btn">重新评估</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 银行列表
+        const banks = [
+            "中国工商银行", "中国农业银行", "中国银行", "中国建设银行", 
+            "交通银行", "中国邮政储蓄银行", "招商银行", "浦发银行", 
+            "中信银行", "广发银行", "光大银行", "民生银行", 
+            "平安银行", "兴业银行", "华夏银行", "浙商银行", "恒丰银行"
+        ];
+        
+        // 银行特定信息
+        const bankSpecificInfo = {
+            "中国工商银行": {
+                description: "工行注重客户的综合贡献度，偏好稳定消费和定期存款客户。",
+                preferences: "喜欢客户有工行储蓄卡并保持一定存款，对多元化消费较为看重。",
+                tip: "建议在工行保持一定存款，并多在高端商户消费。"
+            },
+            "中国农业银行": {
+                description: "农行相对保守，重视客户的还款记录和稳定性。",
+                preferences: "偏好长期稳定使用的客户，对农业相关消费有额外加分。",
+                tip: "保持良好还款记录，适当增加农行合作商户消费。"
+            },
+            "中国银行": {
+                description: "中行重视客户的跨境交易和高端消费能力。",
+                preferences: "偏好有境外消费和高端消费的客户，对分期付款接受度高。",
+                tip: "适当增加境外消费和高端商户消费，可尝试申请临时提额。"
+            },
+            "中国建设银行": {
+                description: "建行注重客户综合资产和稳定消费模式。",
+                preferences: "偏好有建行房贷或大额存款的客户，喜欢稳定消费模式。",
+                tip: "保持稳定消费频率，适当使用建行分期业务。"
+            },
+            "招商银行": {
+                description: "招行喜欢活跃度高、消费能力强的年轻客户。",
+                preferences: "偏好高频次、多元化消费，对线上消费特别看重。",
+                tip: "增加消费频率，多在招行合作线上平台消费。"
+            },
+            "交通银行": {
+                description: "交行重视客户的用卡活跃度和合作商户消费。",
+                preferences: "偏好周五消费（最红星期五活动），喜欢客户参与银行活动。",
+                tip: "充分利用周五消费优惠，参与交行各类营销活动。"
+            },
+            "浦发银行": {
+                description: "浦发银行偏好高消费客户，尤其看重分期业务。",
+                preferences: "喜欢客户使用分期业务，对高端消费和境外消费有偏好。",
+                tip: "适当使用分期业务，增加高端消费比例。"
+            },
+            "中信银行": {
+                description: "中信银行重视客户的消费能力和用卡频率。",
+                preferences: "偏好高频率、多场景消费，对航空联名卡客户有额外优待。",
+                tip: "保持高频消费，多使用中信合作商户。"
+            },
+            "广发银行": {
+                description: "广发银行喜欢活跃度高、消费多元化的客户。",
+                preferences: "偏好周五消费（广发分享日），重视客户参与度。",
+                tip: "充分利用周五优惠，保持多元化消费模式。"
+            },
+            "光大银行": {
+                description: "光大银行重视客户的稳定消费和分期业务使用。",
+                preferences: "偏好稳定消费模式，对分期业务接受度高。",
+                tip: "保持稳定消费，适当使用光大分期业务。"
+            },
+            "民生银行": {
+                description: "民生银行偏好高收入、高消费能力的客户。",
+                preferences: "喜欢客户在高端商户消费，对女性客户有特殊优惠。",
+                tip: "增加高端消费，充分利用民生银行特色活动。"
+            },
+            "平安银行": {
+                description: "平安银行重视客户的综合金融贡献度。",
+                preferences: "偏好有平安保险或其他金融产品的客户，喜欢高频率消费。",
+                tip: "关联平安其他金融产品，保持高频消费。"
+            },
+            "兴业银行": {
+                description: "兴业银行偏好稳定消费和有车一族的客户。",
+                preferences: "喜欢客户在加油、汽车相关商户消费，对稳定消费模式看重。",
+                tip: "增加加油类消费，保持稳定用卡习惯。"
+            },
+            "华夏银行": {
+                description: "华夏银行重视客户的用卡活跃度和分期业务。",
+                preferences: "偏好高频次消费，对分期业务接受度较高。",
+                tip: "保持高频消费，适当使用华夏分期业务。"
+            },
+            "中国邮政储蓄银行": {
+                description: "邮储银行相对保守，重视客户的还款记录和稳定性。",
+                preferences: "偏好长期稳定使用的客户，对农村地区消费有额外加分。",
+                tip: "保持良好还款记录，稳定使用信用卡。"
+            },
+            "浙商银行": {
+                description: "浙商银行偏好商务人士和高消费客户。",
+                preferences: "喜欢客户在商务相关商户消费，对高端消费有偏好。",
+                tip: "增加商务类消费，保持较高消费水平。"
+            },
+            "恒丰银行": {
+                description: "恒丰银行重视客户的稳定消费和还款记录。",
+                preferences: "偏好稳定消费模式，对长期客户有优待。",
+                tip: "保持稳定消费和良好还款记录。"
+            }
+        };
+        
+        // 初始化银行选择
+        const bankOptionsContainer = document.getElementById('bank-options');
+        banks.forEach(bank => {
+            const bankOption = document.createElement('div');
+            bankOption.className = 'bank-option';
+            bankOption.innerHTML = `
+                <div class="bank-logo">${bank.substring(0, 2)}</div>
+                <div>${bank}</div>
+            `;
+            bankOption.addEventListener('click', function() {
+                document.querySelectorAll('.bank-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                updateNextButtonState(1);
+            });
+            bankOptionsContainer.appendChild(bankOption);
+        });
+        
+        // 页面导航逻辑
+        let currentPage = 1;
+        const totalPages = 9; // 不包括报告页和提额方案页
+        
+        // 更新进度条
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const progress = (currentPage / totalPages) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `第${currentPage}页/共${totalPages}页`;
+        }
+        
+        // 更新下一页按钮状态
+        function updateNextButtonState(pageNum) {
+            const nextButton = document.getElementById(`next-${pageNum}`);
+            if (pageNum === 1) {
+                // 银行选择页
+                const selectedBank = document.querySelector('.bank-option.selected');
+                nextButton.disabled = !selectedBank;
+            } else {
+                // 其他问题页
+                const questionName = getQuestionNameByPage(pageNum);
+                const selectedOption = document.querySelector(`input[name="${questionName}"]:checked`);
+                nextButton.disabled = !selectedOption;
+            }
+        }
+        
+        // 根据页面获取问题名称
+        function getQuestionNameByPage(pageNum) {
+            const questionNames = {
+                2: 'usage-time',
+                3: 'repayment',
+                4: 'continuous',
+                5: 'limit',
+                6: 'frequency',
+                7: 'diversity',
+                8: 'fake',
+                9: 'overseas'
+            };
+            return questionNames[pageNum];
+        }
+        
+        // 显示指定页面
+        function showPage(pageNum) {
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            if (pageNum === 'report') {
+                document.getElementById('report-page').classList.add('active');
+                // 隐藏进度条
+                document.querySelector('.progress-container').style.display = 'none';
+            } else if (pageNum === 'limit-plan') {
+                document.getElementById('limit-plan-page').classList.add('active');
+                // 隐藏进度条
+                document.querySelector('.progress-container').style.display = 'none';
+                // 生成提额方案
+                generateLimitPlan();
+            } else {
+                document.getElementById(`page-${pageNum}`).classList.add('active');
+                currentPage = pageNum;
+                updateProgressBar();
+                
+                // 更新按钮状态
+                if (pageNum > 1) {
+                    updateNextButtonState(pageNum);
+                }
+            }
+        }
+        
+        // 为选项添加点击事件
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                const radioInput = this.querySelector('input[type="radio"]');
+                radioInput.checked = true;
+                
+                // 更新选中状态
+                document.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                
+                // 更新下一页按钮状态
+                const pageNum = parseInt(this.closest('.card').id.split('-')[1]);
+                updateNextButtonState(pageNum);
+            });
+        });
+        
+        // 初始化下一页按钮事件
+        for (let i = 1; i <= 8; i++) {
+            document.getElementById(`next-${i}`).addEventListener('click', function() {
+                showPage(i + 1);
+            });
+        }
+        
+        // 初始化上一页按钮事件
+        for (let i = 2; i <= 9; i++) {
+            document.getElementById(`prev-${i}`).addEventListener('click', function() {
+                showPage(i - 1);
+            });
+        }
+        
+        // 提交按钮事件
+        document.getElementById('submit-btn').addEventListener('click', function() {
+            generateReport();
+            showPage('report');
+        });
+        
+        // 查看提额方案按钮事件
+        document.getElementById('limit-plan-btn').addEventListener('click', function() {
+            showPage('limit-plan');
+        });
+        
+        // 返回报告按钮事件
+        document.getElementById('prev-limit-plan').addEventListener('click', function() {
+            showPage('report');
+        });
+        
+        // 重新评估按钮事件
+        document.getElementById('prev-report').addEventListener('click', function() {
+            resetForm();
+        });
+        
+        document.getElementById('restart-btn').addEventListener('click', function() {
+            resetForm();
+        });
+        
+        // 重置表单
+        function resetForm() {
+            // 重置表单
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
+            document.querySelectorAll('.option, .bank-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // 显示进度条
+            document.querySelector('.progress-container').style.display = 'block';
+            
+            // 返回第一页
+            showPage(1);
+        }
+        
+        // 生成报告
+        function generateReport() {
+            // 收集答案
+            const answers = {
+                bank: document.querySelector('.bank-option.selected') ? 
+                      document.querySelector('.bank-option.selected').querySelector('div:last-child').textContent : '未选择',
+                usageTime: getSelectedValue('usage-time'),
+                repayment: getSelectedValue('repayment'),
+                continuous: getSelectedValue('continuous'),
+                limit: getSelectedValue('limit'),
+                frequency: getSelectedValue('frequency'),
+                diversity: getSelectedValue('diversity'),
+                fake: getSelectedValue('fake'),
+                overseas: getSelectedValue('overseas')
+            };
+            
+            // 计算总分
+            let totalScore = 0;
+            const maxScore = 40; // 8个问题，每个最高5分
+            
+            // 计算各项得分（排除银行选择）
+            Object.keys(answers).forEach(key => {
+                if (key !== 'bank' && answers[key] !== null) {
+                    totalScore += parseInt(answers[key]);
+                }
+            });
+            
+            // 计算百分比
+            const percentage = Math.round((totalScore / maxScore) * 100);
+            
+            // 显示总分
+            document.getElementById('final-score').textContent = `${totalScore}/${maxScore} (${percentage}%)`;
+            
+            // 显示评级
+            const ratingText = document.getElementById('rating-text');
+            if (percentage >= 90) {
+                ratingText.textContent = '优秀 - 信用状况极佳';
+                ratingText.style.color = 'var(--success-color)';
+            } else if (percentage >= 75) {
+                ratingText.textContent = '良好 - 信用状况良好';
+                ratingText.style.color = 'var(--success-color)';
+            } else if (percentage >= 60) {
+                ratingText.textContent = '一般 - 信用状况一般';
+                ratingText.style.color = 'var(--warning-color)';
+            } else if (percentage >= 40) {
+                ratingText.textContent = '较差 - 信用状况需要关注';
+                ratingText.style.color = 'var(--warning-color)';
+            } else {
+                ratingText.textContent = '高风险 - 信用状况较差';
+                ratingText.style.color = 'var(--danger-color)';
+            }
+            
+            // 显示详细评分
+            const scoreDetails = document.getElementById('score-details');
+            scoreDetails.innerHTML = '';
+            
+            const questionLabels = {
+                usageTime: '信用卡使用时间',
+                repayment: '还款情况',
+                continuous: '持续用卡情况',
+                limit: '额度使用情况',
+                frequency: '月消费频率',
+                diversity: '多元化消费',
+                fake: '虚假商户交易',
+                overseas: '境外消费'
+            };
+            
+            Object.keys(questionLabels).forEach(key => {
+                if (answers[key] !== null) {
+                    const detailItem = document.createElement('div');
+                    detailItem.className = 'detail-item';
+                    detailItem.innerHTML = `
+                        <span>${questionLabels[key]}</span>
+                        <span>${answers[key]}星</span>
+                    `;
+                    scoreDetails.appendChild(detailItem);
+                }
+            });
+            
+            // 生成分维度建议
+            generateDimensionAdvice(answers);
+            
+            // 生成总体建议
+            generateOverallRecommendations(answers, totalScore, maxScore);
+        }
+        
+        // 生成分维度建议
+        function generateDimensionAdvice(answers) {
+            const dimensionAdviceContainer = document.getElementById('dimension-advice');
+            dimensionAdviceContainer.innerHTML = '';
+            
+            const adviceMap = {
+                usageTime: generateUsageTimeAdvice(parseInt(answers.usageTime)),
+                repayment: generateRepaymentAdvice(parseInt(answers.repayment)),
+                continuous: generateContinuousAdvice(parseInt(answers.continuous)),
+                limit: generateLimitAdvice(parseInt(answers.limit)),
+                frequency: generateFrequencyAdvice(parseInt(answers.frequency)),
+                diversity: generateDiversityAdvice(parseInt(answers.diversity)),
+                fake: generateFakeAdvice(parseInt(answers.fake)),
+                overseas: generateOverseasAdvice(parseInt(answers.overseas))
+            };
+            
+            const questionLabels = {
+                usageTime: '信用卡使用时间',
+                repayment: '还款情况',
+                continuous: '持续用卡情况',
+                limit: '额度使用情况',
+                frequency: '月消费频率',
+                diversity: '多元化消费',
+                fake: '虚假商户交易',
+                overseas: '境外消费'
+            };
+            
+            Object.keys(adviceMap).forEach(key => {
+                if (answers[key] !== null) {
+                    const adviceDiv = document.createElement('div');
+                    adviceDiv.className = 'dimension-advice';
+                    
+                    const titleDiv = document.createElement('div');
+                    titleDiv.className = 'dimension-title';
+                    titleDiv.textContent = questionLabels[key];
+                    
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'advice-content';
+                    
+                    // 根据得分设置不同的颜色
+                    const score = parseInt(answers[key]);
+                    if (score >= 4) {
+                        contentDiv.classList.add('good-advice');
+                    } else if (score >= 2) {
+                        contentDiv.classList.add('improve-advice');
+                    } else {
+                        contentDiv.classList.add('critical-advice');
+                    }
+                    
+                    contentDiv.innerHTML = adviceMap[key];
+                    
+                    adviceDiv.appendChild(titleDiv);
+                    adviceDiv.appendChild(contentDiv);
+                    dimensionAdviceContainer.appendChild(adviceDiv);
+                }
+            });
+        }
+        
+        // 生成总体建议
+        function generateOverallRecommendations(answers, totalScore, maxScore) {
+            const recommendationsList = document.getElementById('recommendations-list');
+            recommendationsList.innerHTML = '';
+            
+            const recommendations = [];
+            const percentage = Math.round((totalScore / maxScore) * 100);
+            
+            // 根据总分给出总体建议
+            if (percentage >= 90) {
+                recommendations.push('您的信用卡使用习惯非常优秀，请继续保持良好的信用记录。');
+                recommendations.push('可以考虑申请更高级别的信用卡或提升额度，以获得更多权益。');
+                recommendations.push('定期关注银行推出的优惠活动，最大化利用信用卡权益。');
+            } else if (percentage >= 75) {
+                recommendations.push('您的信用卡使用习惯良好，但仍有提升空间。');
+                recommendations.push('继续保持按时还款，适当增加消费多样性。');
+                recommendations.push('关注信用报告，确保没有不良记录影响您的信用评分。');
+            } else if (percentage >= 60) {
+                recommendations.push('您的信用卡使用习惯一般，需要关注几个关键方面。');
+                recommendations.push('重点改善还款习惯和额度使用情况，避免逾期和高额使用。');
+                recommendations.push('考虑设置自动还款，避免忘记还款导致逾期。');
+            } else if (percentage >= 40) {
+                recommendations.push('您的信用卡使用习惯需要改善，存在一定的信用风险。');
+                recommendations.push('立即改善还款习惯，避免进一步影响信用记录。');
+                recommendations.push('减少信用卡使用频率，控制负债水平。');
+                recommendations.push('考虑咨询专业财务顾问，制定合理的信用卡使用计划。');
+            } else {
+                recommendations.push('您的信用卡使用习惯存在较高风险，需要立即采取行动。');
+                recommendations.push('停止高风险用卡行为，如逾期还款和高额度使用。');
+                recommendations.push('制定还款计划，尽快还清欠款，避免产生更多利息和罚款。');
+                recommendations.push('考虑暂停使用信用卡，直到财务状况改善。');
+                recommendations.push('建议咨询专业财务顾问，制定债务管理计划。');
+            }
+            
+            recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                recommendationsList.appendChild(li);
+            });
+        }
+        
+        // 生成提额方案
+        function generateLimitPlan() {
+            const answers = {
+                bank: document.querySelector('.bank-option.selected') ? 
+                      document.querySelector('.bank-option.selected').querySelector('div:last-child').textContent : '未选择',
+                usageTime: getSelectedValue('usage-time'),
+                repayment: getSelectedValue('repayment'),
+                continuous: getSelectedValue('continuous'),
+                limit: getSelectedValue('limit'),
+                frequency: getSelectedValue('frequency'),
+                diversity: getSelectedValue('diversity'),
+                fake: getSelectedValue('fake'),
+                overseas: getSelectedValue('overseas')
+            };
+            
+            // 银行特定信息
+            const bankInfoContainer = document.getElementById('bank-specific-info');
+            const bankInfo = bankSpecificInfo[answers.bank] || {
+                description: "该银行注重客户的综合信用表现。",
+                preferences: "偏好稳定消费和良好还款记录的客户。",
+                tip: "保持良好用卡习惯，逐步提升信用额度。"
+            };
+            
+            bankInfoContainer.innerHTML = `
+                <h3>${answers.bank}提额特点</h3>
+                <p><strong>银行特点：</strong>${bankInfo.description}</p>
+                <p><strong>偏好客户：</strong>${bankInfo.preferences}</p>
+                <p><strong>提额建议：</strong>${bankInfo.tip}</p>
+            `;
+            
+            // 日常刷卡策略
+            const dailyStrategyContainer = document.getElementById('daily-strategy');
+            dailyStrategyContainer.innerHTML = `
+                <p>根据您的信用评估结果，为您定制以下日常刷卡策略：</p>
+                <ul>
+                    <li><strong>消费频率：</strong>保持每月${getFrequencyAdvice(parseInt(answers.frequency))}笔消费，避免长期闲置</li>
+                    <li><strong>消费时间：</strong>建议在${getTimeAdvice(answers.bank)}时间段进行消费</li>
+                    <li><strong>消费金额：</strong>单笔消费控制在${getAmountAdvice(parseInt(answers.limit))}元以内，避免大额整数交易</li>
+                    <li><strong>还款方式：</strong>${getRepaymentAdvice(parseInt(answers.repayment))}</li>
+                    <li><strong>商户选择：</strong>${getMerchantAdvice(parseInt(answers.diversity))}</li>
+                </ul>
+            `;
+            
+            // 节假日刷卡策略
+            const holidayStrategyContainer = document.getElementById('holiday-strategy');
+            holidayStrategyContainer.innerHTML = `
+                <p>节假日是提额的黄金时期，建议采取以下策略：</p>
+                <ul>
+                    <li><strong>春节/国庆长假：</strong>增加旅游、餐饮、购物类消费，总额可适当提高至平时的1.5倍</li>
+                    <li><strong>双11/618等购物节：</strong>合理参与电商平台活动，但需控制总额在信用额度的60%以内</li>
+                    <li><strong>银行特定活动日：</strong>关注${answers.bank}的特定活动日（如周五优惠），充分利用银行促销</li>
+                    <li><strong>境外消费机会：</strong>如有出境计划，适当增加境外消费，展示全球消费能力</li>
+                </ul>
+            `;
+            
+            // 商户类型与额度分配表格
+            const merchantTable = document.getElementById('merchant-table');
+            merchantTable.innerHTML = `
+                <tr>
+                    <th>商户类型</th>
+                    <th>推荐频率</th>
+                    <th>单笔金额建议</th>
+                    <th>月度总额占比</th>
+                    <th>特别提示</th>
+                </tr>
+                <tr>
+                    <td>超市/便利店</td>
+                    <td>每周2-3次</td>
+                    <td>50-300元</td>
+                    <td>15%</td>
+                    <td>体现日常消费能力</td>
+                </tr>
+                <tr>
+                    <td>餐饮/娱乐</td>
+                    <td>每周1-2次</td>
+                    <td>100-500元</td>
+                    <td>20%</td>
+                    <td>展示生活品质</td>
+                </tr>
+                <tr>
+                    <td>加油站</td>
+                    <td>每月2-4次</td>
+                    <td>200-800元</td>
+                    <td>10%</td>
+                    <td>有车一族加分项</td>
+                </tr>
+                <tr>
+                    <td>百货商场</td>
+                    <td>每月2-3次</td>
+                    <td>300-1000元</td>
+                    <td>25%</td>
+                    <td>体现消费能力</td>
+                </tr>
+                <tr>
+                    <td>线上消费</td>
+                    <td>每周3-5次</td>
+                    <td>50-500元</td>
+                    <td>20%</td>
+                    <td>展示现代消费习惯</td>
+                </tr>
+                <tr>
+                    <td>高端消费</td>
+                    <td>每月1-2次</td>
+                    <td>500-2000元</td>
+                    <td>10%</td>
+                    <td>提升客户层级</td>
+                </tr>
+            `;
+            
+            // 提额时间规划
+            const timelineContainer = document.getElementById('timeline-plan');
+            timelineContainer.innerHTML = `
+                <div class="timeline-item">
+                    <h4>第1个月：建立良好记录</h4>
+                    <p>严格按照上述策略执行，确保全额还款，建立良好用卡记录。</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>第2-3个月：增加消费活跃度</h4>
+                    <p>适当增加消费频率和金额，保持多元化消费模式。</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>第4-6个月：申请首次提额</h4>
+                    <p>如果前三个月记录良好，可尝试申请首次提额，幅度建议为20-30%。</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>第7-12个月：巩固提升</h4>
+                    <p>保持良好用卡习惯，可尝试申请更高额度或升级卡片。</p>
+                </div>
+            `;
+        }
+        
+        // 辅助函数 - 根据频率得分给出建议
+        function getFrequencyAdvice(score) {
+            switch(score) {
+                case 1: return "8-12";
+                case 2: return "12-18";
+                case 3: return "18-25";
+                case 4: return "25-35";
+                case 5: return "35-50";
+                default: return "15-20";
+            }
+        }
+        
+        // 辅助函数 - 根据银行给出时间建议
+        function getTimeAdvice(bank) {
+            if (bank === "交通银行" || bank === "广发银行") {
+                return "周五、周六";
+            } else if (bank === "招商银行") {
+                return "工作日晚上和周末";
+            } else {
+                return "工作日中午、晚上和周末";
+            }
+        }
+        
+        // 辅助函数 - 根据额度使用情况给出金额建议
+        function getAmountAdvice(score) {
+            switch(score) {
+                case 1: return "500";
+                case 2: return "800";
+                case 3: return "1200";
+                case 4: return "1500";
+                case 5: return "2000";
+                default: return "1000";
+            }
+        }
+        
+        // 辅助函数 - 根据还款情况给出建议
+        function getRepaymentAdvice(score) {
+            switch(score) {
+                case 1: return "务必设置自动还款，避免再次逾期";
+                case 2: return "设置还款提醒，提前3天准备还款资金";
+                case 3: return "出账后一周内还款，保持良好的还款记录";
+                case 4: return "继续保持出账后及时还款的习惯";
+                case 5: return "优秀的还款习惯，可适当利用免息期优化资金流动";
+                default: return "出账后一周内还款";
+            }
+        }
+        
+        // 辅助函数 - 根据多元化消费给出商户建议
+        function getMerchantAdvice(score) {
+            switch(score) {
+                case 1: return "至少增加3-4个新的商户类型，如餐饮、超市、加油站等";
+                case 2: return "适当增加2-3个高端商户类型，如百货商场、高端餐厅";
+                case 3: return "保持良好的多元化消费，可尝试增加境外线上消费";
+                case 4: return "优秀的消费多样性，可关注银行特定合作商户获取额外优惠";
+                case 5: return "非常全面的消费场景，可适当增加高端消费比例提升客户层级";
+                default: return "保持5-7个不同类型的商户消费";
+            }
+        }
+        
+        // 各维度建议生成函数（原有函数保持不变）
+        function generateUsageTimeAdvice(score) {
+            switch(score) {
+                case 1:
+                    return "您的信用卡使用时间较短，信用记录尚浅。建议：1) 保持持续使用，积累良好的信用历史；2) 按时还款，建立可靠的还款记录；3) 避免频繁申请新卡，以免影响信用评分。";
+                case 3:
+                    return "您的信用卡使用时间处于中等水平。建议：1) 继续保持良好的用卡习惯；2) 可以考虑申请额度提升，但不要过度使用；3) 关注银行提供的信用建立指导。";
+                case 5:
+                    return "您的信用卡使用时间较长，信用历史良好。建议：1) 继续保持优秀的使用记录；2) 可以申请更高级别的信用卡享受更多权益；3) 定期检查信用报告，确保无误。";
+                default:
+                    return "暂无具体建议。";
+            }
+        }
+        
+        function generateRepaymentAdvice(score) {
+            switch(score) {
+                case 1:
+                    return "您的还款习惯存在严重问题，逾期还款会严重影响信用记录。建议：1) 立即设置还款提醒或自动还款；2) 优先偿还逾期金额；3) 如遇困难，及时与银行沟通协商还款计划。";
+                case 2:
+                    return "您有时会逾期还款，这对信用评分有负面影响。建议：1) 设置日历提醒或银行提醒服务；2) 提前准备还款资金；3) 考虑使用自动还款功能避免遗忘。";
+                case 3:
+                    return "您的还款习惯一般，存在改进空间。建议：1) 尝试提前几天还款，避免最后一刻匆忙；2) 设置固定还款日期，养成习惯；3) 关注账单日和还款日，合理安排资金。";
+                case 4:
+                    return "您的还款习惯良好。建议：1) 继续保持及时还款；2) 可以考虑利用信用卡的免息期优化资金流动；3) 关注银行提供的还款优惠活动。";
+                case 5:
+                    return "您的还款习惯优秀，在账单日前还款是最佳做法。建议：1) 继续保持这一良好习惯；2) 可以探索更多信用卡理财功能；3) 您的良好记录有助于获得更高信用额度。";
+                default:
+                    return "暂无具体建议。";
+            }
+        }
+        
+        function generateContinuousAdvice(score) {
+            switch(score) {
+                case 1:
+                    return "您的用卡连续性较差，短期使用不利于信用积累。建议：1) 制定长期用卡计划；2) 即使小额消费也保持每月使用；3) 避免长期闲置信用卡。";
+                case 2:
+                    return "您的用卡连续性一般。建议：1) 增加用卡频率，保持账户活跃；2) 设置定期小额自动支付；3) 关注银行活动，增加用卡动机。";
+                case 3:
+                    return "您的用卡连续性良好。建议：1) 继续保持稳定用卡习惯；2) 可以适当增加消费场景多样性；3) 关注信用卡有效期，及时续卡。";
+                case 5:
+                    return "您的用卡连续性优秀，长期稳定使用有助于信用积累。建议：1) 继续保持这一良好习惯；2) 可以探索银行提供的忠诚客户优惠；3) 定期评估信用卡是否符合当前需求。";
+                default:
+                    return "暂无具体建议。";
+            }
+        }
+        
+        function generateLimitAdvice(score) {
+            switch(score) {
+                case 1:
+                    return "您的额度使用率过高，这会被视为高风险行为。建议：1) 立即减少信用卡使用；2) 制定还款计划降低欠款；3) 考虑申请临时提额或分期付款减轻压力。";
+                case 2:
+                    return "您的额度使用率偏高，可能影响信用评分。建议：1) 控制在70%以下的使用率；2) 提前还款降低使用率；3) 避免在账单日前高额使用。";
+                case 3:
+                    return "您的额度使用率适中。建议：1) 继续保持合理使用；2) 可以探索更适合您消费习惯的信用卡；3) 关注银行提供的额度管理工具。";
+                case 4:
+                    return "您的额度使用率较为理想。建议：1) 继续保持这一良好习惯；2) 可以适当利用信用卡优惠活动；3) 定期评估额度是否满足需求。";
+                case 5:
+                    return "您的额度使用率非常理想，低使用率有利于信用评分。建议：1) 继续保持适度使用；2) 可以探索信用卡投资或理财功能；3) 您的良好记录有助于获得更多金融服务。";
+                default:
+                    return "暂无具体建议。";
+            }
+        }
+        
+        function generateFrequencyAdvice(score) {
+            switch(score) {
+                case 1:
+                    return "您的消费频率较低，账户活跃度不足。建议：1) 适当增加用卡频率，每月至少3-5次；2) 将小额日常消费转为信用卡支付；3) 设置定期自动支付增加活跃度。";
+                case 2:
+                    return "您的消费频率适中。建议：1) 继续保持稳定消费习惯；2) 可以探索更多适合信用卡支付的场景；3) 关注银行消费返现或积分活动。";
+                case 3:
+                    return "您的消费频率良好。建议：1) 继续保持这一习惯；2) 可以优化消费结构，增加高积分类别消费；3) 关注月度消费统计，合理规划支出。";
+                case 4:
+                    return "您的消费频率较高，账户活跃度良好。建议：1) 继续保持适度消费；2) 可以探索信用卡会员等级提升机会；3) 注意控制总体消费金额，避免过度支出。";
+                case 5:
+                    return "您的消费频率非常高，账户极为活跃。建议：1) 确保高频率消费与您的收入匹配；2) 可以最大化利用信用卡积分和优惠；3) 定期检查消费记录，确保无异常交易。";
+                default:
+                    return "暂无具体建议。";
+            }
+        }
+        
+        function generateDiversityAdvice(score) {
+            switch(score) {
+                case 1:
+                    return "您的消费场景单一，不利于信用评分。建议：1) 尝试在不同类型商户消费；2) 将日常多元消费（超市、餐饮、加油等）转为信用卡支付；3) 关注银行合作商户，增加消费多样性。";
+                case 2:
+                    return "您的消费多样性一般。建议：1) 增加2-3个新的消费场景；2) 探索信用卡在线支付功能；3) 关注不同商户类型的优惠活动。";
+                case 3:
+                    return "您的消费多样性良好。建议：1) 继续保持多元消费习惯；2) 可以探索更多高端消费场景；3) 关注银行提供的消费分析报告，优化消费结构。";
+                case 4:
+                    return "您的消费多样性优秀。建议：1) 继续保持这一良好习惯；2) 可以探索信用卡旅行、娱乐等特色权益；3) 您的多元消费记录有助于获得更精准的信用卡推荐。";
+                case 5:
+                    return "您的消费多样性非常优秀，全面的消费场景展示出良好的信用使用能力。建议：1) 继续保持多元消费；2) 可以探索信用卡高端会员权益；3) 您的消费模式是银行理想客户类型。";
+                default:
+                    return "暂无具体建议。";
+            }
+        }
+        
+        function generateFakeAdvice(score) {
+            switch(score) {
+                case 1:
+                    return "您存在多个虚假商户交易，这是严重违规行为。建议：1) 立即停止所有虚假交易；2) 检查信用卡安全，确保未被盗用；3) 如属故意行为，请立即停止以免影响信用记录和法律风险。";
+                case 3:
+                    return "您有虚假商户交易记录，这会影响信用评估。建议：1) 确保所有交易在真实商户进行；2) 检查交易记录，确认无异常；3) 如属无意，联系银行澄清情况。";
+                case 5:
+                    return "您的交易全部在真实商户进行，符合信用卡使用规范。建议：1) 继续保持真实交易习惯；2) 定期检查交易记录，确保无盗刷；3) 您的合规使用有助于维持良好信用记录。";
+                default:
+                    return "暂无具体建议。";
+            }
+        }
+        
+        function generateOverseasAdvice(score) {
+            switch(score) {
+                case 1:
+                    return "您没有境外消费记录。建议：1) 如有出境计划，可提前了解信用卡境外使用政策；2) 境外消费有助于展示信用卡全球使用能力；3) 无需刻意境外消费，保持正常使用即可。";
+                case 5:
+                    return "您有境外消费记录，这有助于展示信用卡的全球使用能力。建议：1) 境外使用时注意货币转换费用；2) 提前开通境外交易功能；3) 保存境外消费凭证，便于核对账单。";
+                default:
+                    return "暂无具体建议。";
+            }
+        }
+        
+        // 获取单选按钮选中的值
+        function getSelectedValue(name) {
+            const selected = document.querySelector(`input[name="${name}"]:checked`);
+            return selected ? selected.value : null;
+        }
+        
+        // 初始化第一页的下一个按钮状态
+        updateNextButtonState(1);
+        updateProgressBar();
+    </script>
+</body>
+</html>
